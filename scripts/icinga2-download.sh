@@ -15,8 +15,35 @@
 
 set -u
 
+MYOPTS="af:h"
 REPOURL=https://packages.icinga.com/fedora
+DOWNLOAD_ALL=0
 FC=41
+
+function print_help
+{
+  echo ""
+  echo "${1:-} options:"
+  echo "    -h: print this help and exit"
+  echo "    -a: download all files, default downloads only latest srpm in each directory"
+  echo "    -f: overried FC version, default is 41"
+  echo ""
+}
+
+# Parse args
+while getopts "$MYOPTS" myo; do
+  case "$myo" in
+    a)
+      DOWNLOAD_ALL=1
+      ;;
+    h)
+      print_help $0
+      exit
+      ;;
+    f) FC="${OPTARG}"
+      ;;
+  esac
+done
 
 # get repo metadata
 
@@ -27,6 +54,22 @@ XMLFILE=$(basename `cat repomd.xml | grep primary  | grep xml | cut -d \" -f 2`)
 curl -s -O ${REPOURL}/${FC}/release/repodata/${XMLFILE}
 
 gzip -cd ${XMLFILE} | grep src.rpm |grep location | cut -d \" -f 2 > files
+
+if [[ "${DOWNLOAD_ALL}" -eq 0 ]] ; then
+  # limit file download to in each directory
+  FULL_LIST=$(cat files)
+  mv files files.orig
+
+  for FNAME in ${FULL_LIST} ; do
+    DNAME=$(dirname $FNAME)
+    # sort --- get only one, then out to files
+    LAST_FILE=$(echo "$FULL_LIST" | sort | grep "$DNAME"/ | tail -1)
+    grep $LAST_FILE files > /dev/null 2>&1
+    if [[ $? -ne 0 ]] ; then
+      echo "$LAST_FILE" >> files
+    fi
+  done
+fi
 
 # download files
 
@@ -41,4 +84,4 @@ cat files | while read line ; do
   fi
 done
 
-rm repomd.xml ${XMLFILE} files
+rm -f repomd.xml ${XMLFILE} files files.orig

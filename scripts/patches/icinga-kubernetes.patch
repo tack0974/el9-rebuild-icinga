@@ -1,0 +1,9 @@
+#! /bin/bash
+
+PKGNAME=${1:-}
+set -u
+
+if [[ ${PKGNAME} == "icinga-kubernetes" ]] ; then
+  sed -i  s,BUILD/icinga-kubernetes.*-build\',BUILD\',  ~/rpmbuild/SPECS/${PKGNAME}.spec
+  sed -i  s,'/usr/lib/rpm/rpmuncompress -x -v','tar xvf',  ~/rpmbuild/SPECS/${PKGNAME}.spec
+fi

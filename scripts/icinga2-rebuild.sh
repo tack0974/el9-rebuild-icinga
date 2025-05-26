@@ -17,6 +17,32 @@ set -u
 
 FC="41"
 GO_REQ_VER="1.24"
+MYOPTS="af:h"
+BUILD_ALL=0
+
+function print_help
+{
+  echo ""
+  echo "${1:-} options:"
+  echo "    -h: print this help and exit"
+  echo "    -a: build all versions"
+  echo "    -f: overried FC version, default is 41"
+  echo ""
+}
+
+# Parse args
+while getopts "$MYOPTS" myo; do
+  case "$myo" in
+    a) BUILD_ALL=1
+      ;;
+    h)
+      print_help $0
+      exit
+      ;;
+    f) FC="${OPTARG}"
+      ;;
+  esac
+done
 
 # check go version
 go_vers=$(go version | awk '{print $3}' | sed s/go//)
@@ -30,8 +56,13 @@ for REL in ${FC} ; do
   DIRLIST=$(ls ${REL}/src)
   
   for i in $DIRLIST; do
-    # build all package version
-    REVLIST=$(ls ${REL}/src/${i})
+    if [[ "${BUILD_ALL}" -eq 1 ]] ; then
+      # build all package version
+      REVLIST=$(ls ${REL}/src/${i})
+    else
+      # build only latest version
+      REVLIST=$(ls ${REL}/src/${i} | sort | tail -n 1)
+    fi
   
     # check if package is already installed
     for LASTREV in $REVLIST ; do
@@ -41,17 +72,17 @@ for REL in ${FC} ; do
   
         SPECFILE=~/rpmbuild/SPECS/${i}.spec
         if [[ -f ${SPECFILE} ]] ; then
-          # Patch and rebuild
-          sed -i s/fc${REL}/el9/g ~/rpmbuild/SPECS/${i}.spec
-          sed -i s/'_topdir.BUILD[a-z\.0-9/\-]*BUILDROOT'/'{buildroot}'/g ~/rpmbuild/SPECS/${i}.spec
-          if [[ ${i} == "icinga2" ]] ; then
-            sed -i s/mysql-devel/mariadb-connector-c-devel/ ~/rpmbuild/SPECS/${i}.spec
+          if [[ -x patches/all_specfiles.patch ]] ; then
+            echo "APPLY patch patches/all_specfiles.patch"
+            patches/all_specfiles.patch ${i} ${REL}
           fi
-  
-          if [[ ${i} == "icingadb-redis" ]] ; then
-            sed -i  s/BUILD.icingadb-redis.*-build\'/BUILD\'/  ~/rpmbuild/SPECS/${i}.spec
-            sed -i  s,'/usr/lib/rpm/rpmuncompress -x -v','tar xvf',  ~/rpmbuild/SPECS/${i}.spec
-            # continue
+
+          if [[ -x patches/${i}.patch ]] ; then
+            echo "APPLY patch patches/${i}.patch"
+            patches/${i}.patch ${i}
+          elif [[ -x patches/${LASTREV}.patch ]] ; then
+            echo "APPLY patch patches/${LASTREV}.patch"
+            patches/${LASTREV}.patch ${i}
           fi
   
           rpmbuild -ba ${SPECFILE}

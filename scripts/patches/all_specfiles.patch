@@ -1,0 +1,10 @@
+#! /bin/bash
+
+PKGNAME=${1:-}
+REL=${2:-}
+set -u
+
+if [[ -f ~/rpmbuild/SPECS/${PKGNAME}.spec ]] ; then
+  sed -i s/fc${REL}/el9/g ~/rpmbuild/SPECS/${PKGNAME}.spec
+  sed -i s/'_topdir.BUILD[a-z\.0-9/\-]*BUILDROOT'/'{buildroot}'/g ~/rpmbuild/SPECS/${PKGNAME}.spec
+fi

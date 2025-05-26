@@ -1,0 +1,8 @@
+#! /bin/bash
+
+PKGNAME=${1:-}
+set -u
+
+if [[ ${PKGNAME} == "icinga2" ]] ; then
+  sed -i s/mysql-devel/mariadb-connector-c-devel/ ~/rpmbuild/SPECS/${PKGNAME}.spec
+fi
