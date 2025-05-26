@@ -9,8 +9,9 @@ host.
 And this is the result.
 
 Once you have a host with all required packages installed you just simply need to run the 2 scripts
-``icinga2-download.sh`` downloads SRPM files (I usually use fc41 packages)
+``icinga2-download.sh`` downloads SRPM files (current script use fedora 41 packages)
 ``icinga2-rebuild.sh`` modifies spec files to kicks off package recompilation
+``icinga2-makerepo.sh`` creates repo structure that can be used with yum.
 
 
 ## Notes
