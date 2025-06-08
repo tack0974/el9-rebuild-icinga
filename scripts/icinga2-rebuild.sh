@@ -89,7 +89,7 @@ for REL in ${FC} ; do
           if [[ $? -ne 0 ]] ; then
             exit
           else
-            echo "$LASTREV" >> completed-${REL}
+            echo "`date +'%Y-%m-%d %H:%M:%S'`: $LASTREV" >> completed-${REL}
           fi
         fi
       fi
