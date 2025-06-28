@@ -16,3 +16,5 @@ Once you have a host with all required packages installed you just simply need t
 
 ## Notes
 Default icinga2 compilation requires ``mysql-devel``, default Rocky Linux package with mysql devel files is ``mariadb-connector-c-devel``
+
+Latest version if **icinga-php-thirdparty** require php 8.2 or newer, default php version on RH9 is not good enough, need to install 3rd party version. I'm using remi builds ``dnf install http://rpms.remirepo.net/enterprise/remi-release-9.rpm``, ``dnf module reset php -y``, ``dnf module enable php:remi-8.2 -y`` and last ``dnf update``
