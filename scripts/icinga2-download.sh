@@ -80,6 +80,7 @@ cat files | while read line ; do
   fi
 
   if [[ ! -f ${FC}/$line ]] ; then
+    echo "Downloading $line"
     curl -s --output-dir ${FC}/${DIRNAME} -O ${REPOURL}/${FC}/release/$line
   fi
 done
