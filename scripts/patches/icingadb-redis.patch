@@ -6,5 +6,6 @@ set -u
 if [[ ${PKGNAME} == "icingadb-redis" ]] ; then
   sed -i  s/BUILD.icingadb-redis.*-build\'/BUILD\'/  ~/rpmbuild/SPECS/${PKGNAME}.spec
   sed -i  s,'/usr/lib/rpm/rpmuncompress -x -v','tar xvf',  ~/rpmbuild/SPECS/${PKGNAME}.spec
+  sed -i  s,'BuildRequires: tcl8','BuildRequires: tcl',  ~/rpmbuild/SPECS/${PKGNAME}.spec
   # continue
 fi

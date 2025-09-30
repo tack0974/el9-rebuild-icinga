@@ -15,7 +15,7 @@
 
 set -u
 
-FC="41"
+FC="41 42"
 GO_REQ_VER="1.24"
 MYOPTS="af:h"
 BUILD_ALL=0
@@ -64,33 +64,38 @@ for REL in ${FC} ; do
       REVLIST=$(ls ${REL}/src/${i} | sort | tail -n 1)
     fi
   
-    # check if package is already installed
+    # check if srpm package has been already processed successfully
     for LASTREV in $REVLIST ; do
       grep "$LASTREV" completed-${REL} 2>&1 > /dev/null
       if [[ $? -ne 0 ]] ; then
-        rpm -ivh ${REL}/src/${i}/$LASTREV
+        SRPMNAME=$(echo $LASTREV | sed s/fc${REL}/el9/)
+        if [[ ! -r ~/rpmbuild/SRPMS/${SRPMNAME} ]] ; then
+          rpm -ivh ${REL}/src/${i}/$LASTREV
   
-        SPECFILE=~/rpmbuild/SPECS/${i}.spec
-        if [[ -f ${SPECFILE} ]] ; then
-          if [[ -x patches/all_specfiles.patch ]] ; then
-            echo "APPLY patch patches/all_specfiles.patch"
-            patches/all_specfiles.patch ${i} ${REL}
-          fi
+          SPECFILE=~/rpmbuild/SPECS/${i}.spec
+          if [[ -f ${SPECFILE} ]] ; then
+            if [[ -x patches/all_specfiles.patch ]] ; then
+              echo "APPLY patch patches/all_specfiles.patch"
+              patches/all_specfiles.patch ${i} ${REL}
+            fi
 
-          if [[ -x patches/${i}.patch ]] ; then
-            echo "APPLY patch patches/${i}.patch"
-            patches/${i}.patch ${i}
-          elif [[ -x patches/${LASTREV}.patch ]] ; then
-            echo "APPLY patch patches/${LASTREV}.patch"
-            patches/${LASTREV}.patch ${i}
+            if [[ -x patches/${i}.patch ]] ; then
+              echo "APPLY patch patches/${i}.patch"
+              patches/${i}.patch ${i}
+            elif [[ -x patches/${LASTREV}.patch ]] ; then
+              echo "APPLY patch patches/${LASTREV}.patch"
+              patches/${LASTREV}.patch ${i}
+            fi
+
+            rpmbuild -ba ${SPECFILE}
+            if [[ $? -ne 0 ]] ; then
+              exit
+            else
+              echo "`date +'%Y-%m-%d %H:%M:%S'`: $LASTREV" >> completed-${REL}
+            fi
           fi
-  
-          rpmbuild -ba ${SPECFILE}
-          if [[ $? -ne 0 ]] ; then
-            exit
-          else
-            echo "`date +'%Y-%m-%d %H:%M:%S'`: $LASTREV" >> completed-${REL}
-          fi
+        else
+          echo "`date +'%Y-%m-%d %H:%M:%S'`: $LASTREV" >> completed-${REL}
         fi
       fi
     done

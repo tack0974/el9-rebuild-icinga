@@ -18,7 +18,7 @@ set -u
 MYOPTS="af:h"
 REPOURL=https://packages.icinga.com/fedora
 DOWNLOAD_ALL=0
-FC=41
+FC=42
 
 function print_help
 {
