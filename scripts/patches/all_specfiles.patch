@@ -4,7 +4,14 @@ PKGNAME=${1:-}
 REL=${2:-}
 set -u
 
+# try to guess EL version
+ELVERS=$(rpmbuild --showrc|grep distcore | grep el | awk '{print $3}'  | grep -oP '[0-9]+')
+if [[ -z "$ELVERS" ]] ; then
+  echo "Failed to guess EL release"
+  exit
+fi
+
 if [[ -f ~/rpmbuild/SPECS/${PKGNAME}.spec ]] ; then
-  sed -i s/fc${REL}/el9/g ~/rpmbuild/SPECS/${PKGNAME}.spec
+  sed -i s/fc${REL}/el${ELVERS}/g ~/rpmbuild/SPECS/${PKGNAME}.spec
   sed -i s/'_topdir.BUILD[a-z\.0-9/\-]*BUILDROOT'/'{buildroot}'/g ~/rpmbuild/SPECS/${PKGNAME}.spec
 fi

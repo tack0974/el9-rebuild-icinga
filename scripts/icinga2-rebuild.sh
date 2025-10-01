@@ -51,6 +51,13 @@ if [[ "${go_vers}" < "${GO_REQ_VER}" ]] ; then
   exit 1
 fi
 
+# try to guess EL version
+ELVERS=$(rpmbuild --showrc|grep distcore | grep el | awk '{print $3}'  | grep -oP '[0-9]+')
+if [[ -z "$ELVERS" ]] ; then
+  echo "Failed to guess EL release"
+  exit
+fi
+
 for REL in ${FC} ; do
 
   DIRLIST=$(ls ${REL}/src)
@@ -68,7 +75,7 @@ for REL in ${FC} ; do
     for LASTREV in $REVLIST ; do
       grep "$LASTREV" completed-${REL} 2>&1 > /dev/null
       if [[ $? -ne 0 ]] ; then
-        SRPMNAME=$(echo $LASTREV | sed s/fc${REL}/el9/)
+        SRPMNAME=$(echo $LASTREV | sed s/fc${REL}/el${ELVERS}/)
         if [[ ! -r ~/rpmbuild/SRPMS/${SRPMNAME} ]] ; then
           rpm -ivh ${REL}/src/${i}/$LASTREV
   
