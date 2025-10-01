@@ -1,6 +1,6 @@
-# Rocky Linux 9 - Self build icinga2 packages
+# Rocky Linux - Self build icinga2 packages
 
-this project aims at collecting scripts to rebuild icinga2 packages for Rocky Linux 9.
+this project aims at collecting scripts to rebuild icinga2 packages for Rocky Linux, it start with version 9, it now works with version 10 as well.
 
 Since icinga2 project decided to lock under a subscription wall packages for RH derivatives I started
 searching for an alternative way of getting Icinga2 packages to install on my Rocky Linux 9 monitoring
@@ -17,4 +17,4 @@ Once you have a host with all required packages installed you just simply need t
 ## Notes
 Default icinga2 compilation requires ``mysql-devel``, default Rocky Linux package with mysql devel files is ``mariadb-connector-c-devel``
 
-Latest version if **icinga-php-thirdparty** require php 8.2 or newer, default php version on RH9 is not good enough, need to install 3rd party version. I'm using remi builds ``dnf install http://rpms.remirepo.net/enterprise/remi-release-9.rpm``, ``dnf module reset php -y``, ``dnf module enable php:remi-8.2 -y`` and last ``dnf update``
+Latest version if **icinga-php-thirdparty** require php 8.2 or newer, default php version on RH9 is not good enough, need to install 3rd party version. I'm using remi builds ``dnf install http://rpms.remirepo.net/enterprise/remi-release-9.rpm``, ``dnf module reset php -y``, ``dnf module enable php:remi-8.2 -y`` and last ``dnf update``, this issue with PHP version does not exist on RH10 based release.
