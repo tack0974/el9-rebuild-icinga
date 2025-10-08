@@ -2,8 +2,12 @@
 
 PKGNAME=${1:-}
 set -u
+# try to guess EL version
+ELVERS=$(rpm --eval "%{rhel}")
+RPMTD=$(rpm --showrc |grep _topdir | grep -v '{_topdir}' | awk '{print $3}')
+RPMBUILD_DIR=$(rpm --eval "${RPMTD}")
 
 if [[ ${PKGNAME} == "icinga-kubernetes" ]] ; then
-  sed -i  s,BUILD/icinga-kubernetes.*-build\',BUILD\',  ~/rpmbuild/SPECS/${PKGNAME}.spec
-  sed -i  s,'/usr/lib/rpm/rpmuncompress -x -v','tar xvf',  ~/rpmbuild/SPECS/${PKGNAME}.spec
+  sed -i  s,BUILD/icinga-kubernetes.*-build\',BUILD\',  ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+  sed -i  s,'/usr/lib/rpm/rpmuncompress -x -v','tar xvf',  ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
 fi

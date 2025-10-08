@@ -2,10 +2,14 @@
 
 PKGNAME=${1:-}
 set -u
+# try to guess EL version
+ELVERS=$(rpm --eval "%{rhel}")
+RPMTD=$(rpm --showrc |grep _topdir | grep -v '{_topdir}' | awk '{print $3}')
+RPMBUILD_DIR=$(rpm --eval "${RPMTD}")
 
 if [[ ${PKGNAME} == "icingadb-redis" ]] ; then
-  sed -i  s/BUILD.icingadb-redis.*-build\'/BUILD\'/  ~/rpmbuild/SPECS/${PKGNAME}.spec
-  sed -i  s,'/usr/lib/rpm/rpmuncompress -x -v','tar xvf',  ~/rpmbuild/SPECS/${PKGNAME}.spec
-  sed -i  s,'BuildRequires: tcl8','BuildRequires: tcl',  ~/rpmbuild/SPECS/${PKGNAME}.spec
+  sed -i  s/BUILD.icingadb-redis.*-build\'/BUILD\'/  ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+  sed -i  s,'/usr/lib/rpm/rpmuncompress -x -v','tar xvf',  ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+  sed -i  s,'BuildRequires: tcl8','BuildRequires: tcl',  ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
   # continue
 fi

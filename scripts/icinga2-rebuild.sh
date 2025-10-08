@@ -52,14 +52,16 @@ if [[ "${go_vers}" < "${GO_REQ_VER}" ]] ; then
 fi
 
 # try to guess EL version
-ELVERS=$(rpmbuild --showrc|grep distcore | grep el | awk '{print $3}'  | grep -oP '[0-9]+')
+ELVERS=$(rpm --eval "%{rhel}")
+RPMTD=$(rpm --showrc |grep _topdir | grep -v '{_topdir}' | awk '{print $3}')
+RPMBUILD_DIR=$(rpm --eval "${RPMTD}")
+
 if [[ -z "$ELVERS" ]] ; then
   echo "Failed to guess EL release"
   exit
 fi
 
 for REL in ${FC} ; do
-
   DIRLIST=$(ls ${REL}/src)
   
   for i in $DIRLIST; do
@@ -73,36 +75,36 @@ for REL in ${FC} ; do
   
     # check if srpm package has been already processed successfully
     for LASTREV in $REVLIST ; do
-      grep "$LASTREV" completed-${REL} 2>&1 > /dev/null
-      if [[ $? -ne 0 ]] ; then
-        SRPMNAME=$(echo $LASTREV | sed s/fc${REL}/el${ELVERS}/)
-        if [[ ! -r ~/rpmbuild/SRPMS/${SRPMNAME} ]] ; then
-          rpm -ivh ${REL}/src/${i}/$LASTREV
-  
-          SPECFILE=~/rpmbuild/SPECS/${i}.spec
-          if [[ -f ${SPECFILE} ]] ; then
-            if [[ -x patches/all_specfiles.patch ]] ; then
-              echo "APPLY patch patches/all_specfiles.patch"
-              patches/all_specfiles.patch ${i} ${REL}
-            fi
+      SRPMNAME=$(echo $LASTREV | sed s/fc${REL}/el${ELVERS}/)
+      if [[ ! -r ${RPMBUILD_DIR}/SRPMS/${SRPMNAME} ]] ; then
+        rpm -ivh ${REL}/src/${i}/$LASTREV
 
-            if [[ -x patches/${i}.patch ]] ; then
-              echo "APPLY patch patches/${i}.patch"
-              patches/${i}.patch ${i}
-            elif [[ -x patches/${LASTREV}.patch ]] ; then
-              echo "APPLY patch patches/${LASTREV}.patch"
-              patches/${LASTREV}.patch ${i}
-            fi
-
-            rpmbuild -ba ${SPECFILE}
-            if [[ $? -ne 0 ]] ; then
-              exit
-            else
-              echo "`date +'%Y-%m-%d %H:%M:%S'`: $LASTREV" >> completed-${REL}
-            fi
+        SPECFILE=${RPMBUILD_DIR}/SPECS/${i}.spec
+        if [[ -f ${SPECFILE} ]] ; then
+          if [[ -x patches/all_specfiles.patch ]] ; then
+            echo "APPLY patch patches/all_specfiles.patch"
+            patches/all_specfiles.patch ${i} ${REL}
           fi
-        else
-          echo "`date +'%Y-%m-%d %H:%M:%S'`: $LASTREV" >> completed-${REL}
+
+          if [[ -x patches/${i}.patch ]] ; then
+            echo "APPLY patch patches/${i}.patch"
+            patches/${i}.patch ${i}
+          elif [[ -x patches/${LASTREV}.patch ]] ; then
+            echo "APPLY patch patches/${LASTREV}.patch"
+            patches/${LASTREV}.patch ${i}
+          fi
+
+          rpmbuild -ba ${SPECFILE}
+          if [[ $? -ne 0 ]] ; then
+            exit
+          else
+            echo "`date +'%Y-%m-%d %H:%M:%S'`: $LASTREV" >> completed-${REL}.${ELVERS}
+          fi
+        fi
+      else
+        grep "$LASTREV" completed-${REL}.${ELVERS} > /dev/null 2>&1
+        if [[ $? -ne 0 ]] ; then
+          echo "`date +'%Y-%m-%d %H:%M:%S'`: $LASTREV" >> completed-${REL}.${ELVERS}
         fi
       fi
     done

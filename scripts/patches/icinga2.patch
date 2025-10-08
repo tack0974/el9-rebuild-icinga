@@ -3,6 +3,11 @@
 PKGNAME=${1:-}
 set -u
 
+# try to guess EL version
+ELVERS=$(rpm --eval "%{rhel}")
+RPMTD=$(rpm --showrc |grep _topdir | grep -v '{_topdir}' | awk '{print $3}')
+RPMBUILD_DIR=$(rpm --eval "${RPMTD}")
+
 if [[ ${PKGNAME} == "icinga2" ]] ; then
-  sed -i s/mysql-devel/mariadb-connector-c-devel/ ~/rpmbuild/SPECS/${PKGNAME}.spec
+  sed -i s/mysql-devel/mariadb-connector-c-devel/ ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
 fi

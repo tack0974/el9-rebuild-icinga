@@ -16,8 +16,11 @@
 set -u
 
 REPO_BASEDIR=~/tmp
-RPMBUILD_DIR=~/rpmbuild
 GPGSIGN=0
+
+RPMTD=$(rpm --showrc |grep _topdir | grep -v '{_topdir}' | awk '{print $3}')
+RPMBUILD_DIR=$(rpm --eval "${RPMTD}")
+ELVER=$(rpm --eval "%{rhel}")
 
 function sign_file
 {
@@ -33,7 +36,7 @@ function sign_file
 
 function make_bin_repo
 {
-  REPODIR=${REPO_BASEDIR}/icinga-repo
+  REPODIR=${REPO_BASEDIR}/icinga-repo/${ELVER}
   CREATEINDEX=0
 
   # find files with icinga in the name
@@ -72,7 +75,7 @@ function make_src_repo
   # Create SRPM repo structure, sign SPMs and create
   # signature file for repomd.xml
 
-  REPODIR=${REPO_BASEDIR}/icinga-srpm/Source
+  REPODIR=${REPO_BASEDIR}/icinga-srpm/${ELVER}/Source/
   CREATEINDEX=0
   cd ${RPMBUILD_DIR}/SRPMS
   FLIST=$(find . -type f | grep -i icinga)

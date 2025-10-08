@@ -5,13 +5,16 @@ REL=${2:-}
 set -u
 
 # try to guess EL version
-ELVERS=$(rpmbuild --showrc|grep distcore | grep el | awk '{print $3}'  | grep -oP '[0-9]+')
+ELVERS=$(rpm --eval "%{rhel}")
+RPMTD=$(rpm --showrc |grep _topdir | grep -v '{_topdir}' | awk '{print $3}')
+RPMBUILD_DIR=$(rpm --eval "${RPMTD}")
+
 if [[ -z "$ELVERS" ]] ; then
   echo "Failed to guess EL release"
   exit
 fi
 
-if [[ -f ~/rpmbuild/SPECS/${PKGNAME}.spec ]] ; then
-  sed -i s/fc${REL}/el${ELVERS}/g ~/rpmbuild/SPECS/${PKGNAME}.spec
-  sed -i s/'_topdir.BUILD[a-z\.0-9/\-]*BUILDROOT'/'{buildroot}'/g ~/rpmbuild/SPECS/${PKGNAME}.spec
+if [[ -f ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec ]] ; then
+  sed -i s/fc${REL}/el${ELVERS}/g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+  sed -i s/'_topdir.BUILD[a-z\.0-9/\-]*BUILDROOT'/'{buildroot}'/g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
 fi
