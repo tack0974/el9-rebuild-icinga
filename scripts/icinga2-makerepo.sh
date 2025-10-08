@@ -40,32 +40,34 @@ function make_bin_repo
   CREATEINDEX=0
 
   # find files with icinga in the name
-  cd ${RPMBUILD_DIR}/RPMS
-  FLIST=$(find . -type f | grep -i icinga)
-  # echo $FLIST
+  if [[ -d $${RPMBUILD_DIR}/RPMS ]] ; then
+    cd ${RPMBUILD_DIR}/RPMS
+    FLIST=$(find . -type f | grep -i icinga)
+    # echo $FLIST
 
-  if [[ ! -d ${REPODIR} ]] ; then
-    mkdir $REPODIR
-  fi
-
-  for i in $FLIST ; do
-    if [[ ! -r ${REPODIR}/${i} ]] ; then
-      DNAME=$(dirname $i)
-      if [[ ! -d ${REPODIR}/${DNAME} ]] ; then
-        mkdir -p ${REPODIR}/${DNAME}
-      fi
-      cp -iv $i ${REPODIR}/${i}
-      sign_file ${REPODIR}/${i}
-      CREATEINDEX=1
+    if [[ ! -d ${REPODIR} ]] ; then
+      mkdir $REPODIR
     fi
-  done
 
-  if [[ $CREATEINDEX -ne 0 ]] ; then
-    echo Create index
-    cd ${REPODIR}
-    createrepo .
-    if [[ ${GPGSIGN} -eq 1 ]] ; then
-      gpg --detach-sign --armor repodata/repomd.xml
+    for i in $FLIST ; do
+      if [[ ! -r ${REPODIR}/${i} ]] ; then
+        DNAME=$(dirname $i)
+        if [[ ! -d ${REPODIR}/${DNAME} ]] ; then
+          mkdir -p ${REPODIR}/${DNAME}
+        fi
+        cp -iv $i ${REPODIR}/${i}
+        sign_file ${REPODIR}/${i}
+        CREATEINDEX=1
+      fi
+    done
+
+    if [[ $CREATEINDEX -ne 0 ]] ; then
+      echo Create index
+      cd ${REPODIR}
+      createrepo .
+      if [[ ${GPGSIGN} -eq 1 ]] ; then
+        gpg --detach-sign --armor repodata/repomd.xml
+      fi
     fi
   fi
 }
@@ -77,32 +79,34 @@ function make_src_repo
 
   REPODIR=${REPO_BASEDIR}/icinga-srpm/${ELVER}/Source/
   CREATEINDEX=0
-  cd ${RPMBUILD_DIR}/SRPMS
-  FLIST=$(find . -type f | grep -i icinga)
+  if [[ -d ${RPMBUILD_DIR}/SRPMS ]] ; then
+    cd ${RPMBUILD_DIR}/SRPMS
+    FLIST=$(find . -type f | grep -i icinga)
 
-  if [[ ! -d ${REPODIR} ]] ; then
-    mkdir -p ${REPODIR}
-  fi
-
-  for i in $FLIST ; do
-    if [[ ! -r ${REPODIR}/${i} ]] ; then
-      DNAME=$(dirname ${i})
-      if [[ ! -d ${REPODIR}/${DNAME} ]] ; then
-        mkdir -p ${REPODIR}/${DNAME}
-      fi
-      cp -iv $i ${REPODIR}/${i}
-      sign_file ${REPODIR}/${i}
-      CREATEINDEX=1
+    if [[ ! -d ${REPODIR} ]] ; then
+      mkdir -p ${REPODIR}
     fi
-  done
 
-  if [[ $CREATEINDEX -ne 0 ]] ; then
-    echo Create index
-    cd ${REPODIR}
-    cd ..
-    createrepo .
-    if [[ ${GPGSIGN} -eq 1 ]] ; then
-      gpg --detach-sign --armor repodata/repomd.xml
+    for i in $FLIST ; do
+      if [[ ! -r ${REPODIR}/${i} ]] ; then
+        DNAME=$(dirname ${i})
+        if [[ ! -d ${REPODIR}/${DNAME} ]] ; then
+          mkdir -p ${REPODIR}/${DNAME}
+        fi
+        cp -iv $i ${REPODIR}/${i}
+        sign_file ${REPODIR}/${i}
+        CREATEINDEX=1
+      fi
+    done
+
+    if [[ $CREATEINDEX -ne 0 ]] ; then
+      echo Create index
+      cd ${REPODIR}
+      cd ..
+      createrepo .
+      if [[ ${GPGSIGN} -eq 1 ]] ; then
+        gpg --detach-sign --armor repodata/repomd.xml
+      fi
     fi
   fi
 }
