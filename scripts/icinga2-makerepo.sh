@@ -40,7 +40,7 @@ function make_bin_repo
   CREATEINDEX=0
 
   # find files with icinga in the name
-  if [[ -d $${RPMBUILD_DIR}/RPMS ]] ; then
+  if [[ -d ${RPMBUILD_DIR}/RPMS ]] ; then
     cd ${RPMBUILD_DIR}/RPMS
     FLIST=$(find . -type f | grep -i icinga)
     # echo $FLIST
