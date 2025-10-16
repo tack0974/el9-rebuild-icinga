@@ -1,0 +1,20 @@
+#! /bin/bash
+
+PKGNAME=${1:-}
+REL=${2:-}
+set -u
+
+# try to guess EL version
+ELVERS=$(rpm --eval "%{rhel}")
+RPMTD=$(rpm --showrc |grep _topdir | grep -v '{_topdir}' | awk '{print $3}')
+RPMBUILD_DIR=$(rpm --eval "${RPMTD}")
+
+if [[ -z "$ELVERS" ]] ; then
+  echo "Failed to guess EL release"
+  exit
+fi
+
+if [[ "${ELVERS}" -eq 10 ]] && [[ ${PKGNAME} == "icingadb" ]] ; then
+  # patch spec file to remove build warning
+  sed -i s@^'%attr(-, icingadb, root) /etc/icingadb$'@'%dir %attr(-, icingadb, root) /etc/icingadb'@ ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+fi
