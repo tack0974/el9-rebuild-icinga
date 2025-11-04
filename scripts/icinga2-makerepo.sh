@@ -66,6 +66,7 @@ function make_bin_repo
       cd ${REPODIR}
       createrepo .
       if [[ ${GPGSIGN} -eq 1 ]] ; then
+        rm -f repodata/repomd.xml.asc
         gpg --detach-sign --armor repodata/repomd.xml
       fi
     fi
@@ -105,6 +106,7 @@ function make_src_repo
       cd ..
       createrepo .
       if [[ ${GPGSIGN} -eq 1 ]] ; then
+        rm -f repodata/repomd.xml.asc
         gpg --detach-sign --armor repodata/repomd.xml
       fi
     fi
