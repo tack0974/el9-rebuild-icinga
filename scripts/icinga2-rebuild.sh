@@ -15,10 +15,11 @@
 
 set -u
 
-FC="41 42"
+FC="41 42 43"
 GO_REQ_VER="1.25"
 MYOPTS="af:h"
 BUILD_ALL=0
+ARCH=$(uname -m)
 
 function print_help
 {

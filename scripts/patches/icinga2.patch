@@ -5,9 +5,16 @@ set -u
 
 # try to guess EL version
 ELVERS=$(rpm --eval "%{rhel}")
+ARCH=$(uname -m)
 RPMTD=$(rpm --showrc |grep _topdir | grep -v '{_topdir}' | awk '{print $3}')
 RPMBUILD_DIR=$(rpm --eval "${RPMTD}")
 
 if [[ ${PKGNAME} == "icinga2" ]] ; then
   sed -i s/mysql-devel/mariadb-connector-c-devel/ ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+  if [[ "${ARCH}" == "aarch64" ]] ; then
+    sed -i s/'-mtls-dialect=gnu2'//g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+    sed -i s/'-fcf-protection'//g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+    sed -i s/'-march=x86-64'//g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+    sed -i s/' -m64 '/' '/g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+  fi
 fi
