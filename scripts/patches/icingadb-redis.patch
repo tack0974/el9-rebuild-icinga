@@ -13,7 +13,10 @@ if [[ ${PKGNAME} == "icingadb-redis" ]] ; then
   sed -i  s,'BuildRequires: tcl8','BuildRequires: tcl',  ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
   # Check for version
   PKGVER=$(grep ^Version ~/rpmbuild.el9.x86_64/SPECS/icingadb-redis.spec |awk '{print $2}')
-  if [[ "8.2.3" == "${PKGVER}" ]]  ;  then
+  V1=$(echo ${PKGVER} | cut -d \. -f 1-2)
+  SUB=$(echo ${PKGVER} | cut -d \. -f 3)
+
+  if [[ "${V1}" == "8.2" ]] && [[ ${SUB} -gt 3 ]] ;  then
     ed ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec << END
 30i
 
