@@ -17,4 +17,18 @@ if [[ ${PKGNAME} == "icinga2" ]] ; then
     sed -i s/'-march=x86-64'//g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
     sed -i s/' -m64 '/' '/g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
   fi
+  PKGVER=$(grep ^Version ~/rpmbuild.el9.x86_64/SPECS/icinga2.spec |awk '{print $2}')
+  V1=$(echo ${PKGVER} | cut -d \. -f 1-2)
+  if [[ "${ELVERS}" -eq 9 ]]  && [[ "${V1}" == "2.16" ]] ; then
+    sed -i s/'BuildRequires: protobuf-lite-devel'//g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
+
+    ed ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec << END
+149i
+
+CMAKE_OPTS="\$CMAKE_OPTS -DICINGA2_WITH_OPENTELEMETRY=no"
+.
+w
+q
+END
+  fi
 fi
