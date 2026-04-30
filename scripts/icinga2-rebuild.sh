@@ -27,7 +27,7 @@ function print_help
   echo "${1:-} options:"
   echo "    -h: print this help and exit"
   echo "    -a: build all versions"
-  echo "    -f: overried FC version, default is 41"
+  echo "    -f: overried FC version, defaults versions '41 42 43'"
   echo ""
 }
 
