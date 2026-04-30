@@ -64,22 +64,22 @@ fi
 
 for REL in ${FC} ; do
   if [[ -d "${REL}" ]] ; then
-    DIRLIST=$(ls ${REL}/src)
+    DIRLIST=$(ls "${REL}/src")
 
-    for i in $DIRLIST; do
+    for i in ${DIRLIST}; do
       if [[ "${BUILD_ALL}" -eq 1 ]] ; then
         # build all package version
-        REVLIST=$(ls ${REL}/src/${i})
+        REVLIST=$(ls "${REL}/src/${i}")
       else
         # build only latest version
-        REVLIST=$(ls ${REL}/src/${i} | sort | tail -n 1)
+        REVLIST=$(ls "${REL}/src/${i}" | sort | tail -n 1)
       fi
   
       # check if srpm package has been already processed successfully
-      for LASTREV in $REVLIST ; do
-        SRPMNAME=$(echo $LASTREV | sed s/fc${REL}/el${ELVERS}/)
-        if [[ ! -r ${RPMBUILD_DIR}/SRPMS/${SRPMNAME} ]] ; then
-          rpm -ivh ${REL}/src/${i}/$LASTREV
+      for LASTREV in ${REVLIST} ; do
+        SRPMNAME=$(echo ${LASTREV} | sed s/fc"${REL}"/el"${ELVERS}"/)
+        if [[ ! -r "${RPMBUILD_DIR}/SRPMS/${SRPMNAME}" ]] ; then
+          rpm -ivh "${REL}/src/${i}/${LASTREV}"
 
           SPECFILE=${RPMBUILD_DIR}/SPECS/${i}.spec
           if [[ -f ${SPECFILE} ]] ; then
