@@ -28,7 +28,7 @@ function print_help
   echo "${1:-} options:"
   echo "    -h: print this help and exit"
   echo "    -a: download all files, default downloads only latest srpm in each directory"
-  echo "    -f: overried FC version, default is 42"
+  echo "    -f: override FC version, default is 42"
   echo ""
 }
 
@@ -48,12 +48,16 @@ while getopts "$MYOPTS" myo; do
 done
 
 # get repo metadata
-
-curl -s -O ${REPOURL}/${FC}/release/repodata/repomd.xml
+curl -f -s -O ${REPOURL}/${FC}/release/repodata/repomd.xml
 
 XMLFILE=$(grep -oP 'href="\K[^"]*primary[^"]*' repomd.xml | head -1 | cut -d / -f 2)
 
-curl -s -O ${REPOURL}/${FC}/release/repodata/${XMLFILE}
+curl -f -s -O ${REPOURL}/${FC}/release/repodata/${XMLFILE}
+if [[ $? -eq 1 ]] ; then
+  rm -f ${XMLFILE}
+  echo "Cleanup and exit, error downloading repodata ${XMLFILE} file"
+  exit 0
+fi
 
 gzip -cd ${XMLFILE} | grep -oP 'href="\K[^"]*src.rpm'  > files
 
