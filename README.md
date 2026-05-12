@@ -1,6 +1,7 @@
 # Rocky Linux - Self build icinga2 packages
 
-this project aims at collecting scripts to rebuild icinga2 packages for Rocky Linux, it start with version 9, it now works with version 10 as well.
+this project aims at collecting scripts to rebuild icinga2 packages for Rocky Linux,
+started with version 9 it now works with version 10 as well.
 
 Since icinga2 project decided to lock under a subscription wall packages for RH derivatives I started
 searching for an alternative way of getting Icinga2 packages to install on my Rocky Linux 9 monitoring
@@ -12,6 +13,10 @@ Once you have a host with all required packages installed you just simply need t
 `icinga2-download.sh` downloads SRPM files (current script use fedora 41 packages) <br />
 `icinga2-rebuild.sh` modifies spec files to kicks off package recompilation <br />
 `icinga2-makerepo.sh` creates repo structure that can be used with yum.
+
+
+Alternatively, scripts for creating a `Docker` container suitable for rebuilding packages in a self contained environment
+are available as well, see README.md in `Docker` tree.
 
 
 ## Notes -- newest first
