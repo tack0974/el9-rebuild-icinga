@@ -15,7 +15,7 @@
 
 set -u
 
-FC="41 42 43"
+FC="42 43 44"
 GO_REQ_VER="1.25"
 MYOPTS="af:h"
 BUILD_ALL=0
