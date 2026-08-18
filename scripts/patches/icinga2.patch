@@ -19,16 +19,20 @@ if [[ ${PKGNAME} == "icinga2" ]] ; then
   fi
   PKGVER=$(grep ^Version ${RPMBUILD_DIR}/SPECS/icinga2.spec |awk '{print $2}')
   V1=$(echo ${PKGVER} | cut -d \. -f 1-2)
+  REV=$(echo ${PKGVER} | cut -d \. -f 3)
   if [[ "${ELVERS}" -eq 9 ]]  && [[ "${V1}" == "2.16" ]] ; then
     sed -i s/'BuildRequires: protobuf-lite-devel'//g ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec
-
-    ed ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec << END
-149i
+    PATCHLINE=$(grep -n "CMAKE_OPTS -DICINGA2_UNITY_BUILD=ON" ${RPMBUILD_DIR}/SPECS/icinga2.spec | cut -d : -f 1)
+    if [[ $PATCHLINE -gt 100 ]] ; then
+      let PATCHLINE="$PATCHLINE + 1"
+      ed ${RPMBUILD_DIR}/SPECS/${PKGNAME}.spec << END
+${PATCHLINE}i
 
 CMAKE_OPTS="\$CMAKE_OPTS -DICINGA2_WITH_OPENTELEMETRY=no"
 .
 w
 q
 END
+    fi
   fi
 fi
